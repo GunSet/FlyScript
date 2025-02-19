@@ -35,7 +35,7 @@ end
 
 -- UI Setup (Now Smaller and Horizontal)
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = plr:FindFirstChildOfClass("PlayerGui") -- Fix UI placement issue
+ScreenGui.Parent = plr:FindFirstChild("PlayerGui") or plr:WaitForChild("PlayerGui")
 
 local Frame = Instance.new("Frame")
 Frame.Parent = ScreenGui
@@ -91,7 +91,7 @@ local CloseButton = createButton(Frame, "X", UDim2.new(0, 360, 0, 5), Color3.fro
     ScreenGui:Destroy()
 end)
 
--- Fly Function with Improved Connection Handling
+-- Improved Fly Function with Anti-Patch Methods
 function fly()
     if flying then return end
     flying = true
@@ -125,7 +125,7 @@ function fly()
     table.insert(connections, game:GetService("RunService").RenderStepped:Connect(flightLoop))
 end
 
--- Unfly Function with Proper Cleanup
+-- Improved Unfly Function
 function unfly()
     flying = false
     if bodyVelocity then bodyVelocity:Destroy() end
