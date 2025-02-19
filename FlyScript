@@ -6,6 +6,16 @@ local flying = false
 local speed = 5
 local bodyVelocity, bodyGyro
 
+-- Function to Switch Character Rig Type
+local function switchRigType(rigType)
+    local humanoidDescription = humanoid:GetAppliedDescription()
+    humanoidDescription.RigType = rigType
+    plr:LoadCharacterWithHumanoidDescription(humanoidDescription)
+    char = plr.Character
+    humanoid = char:WaitForChild("Humanoid")
+    rootPart = char:WaitForChild("HumanoidRootPart")
+end
+
 -- Universal Anti-Kick Bypass for PC & Mobile Executors
 local success, mt = pcall(getrawmetatable, game)
 if success and mt then
@@ -42,8 +52,10 @@ CloseButton.Parent = Frame
 CloseButton.Size = UDim2.new(0, 30, 0, 25)
 CloseButton.Position = UDim2.new(0, 120, 0, 0)
 CloseButton.Text = "X"
-CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 CloseButton.TextColor3 = Color3.new(1, 1, 1)
+CloseButton.Font = Enum.Font.SourceSansBold
+CloseButton.TextScaled = true
 CloseButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
@@ -61,10 +73,6 @@ IncreaseButton.MouseButton1Click:Connect(function()
     speed = speed + 1
     SpeedLabel.Text = "Speed: " .. speed
 end)
-IncreaseButton.TouchTap:Connect(function()
-    speed = speed + 1
-    SpeedLabel.Text = "Speed: " .. speed
-end)
 
 DecreaseButton.Parent = Frame
 DecreaseButton.Size = UDim2.new(0, 60, 0, 25)
@@ -73,12 +81,6 @@ DecreaseButton.Text = "-"
 DecreaseButton.BackgroundColor3 = Color3.fromRGB(255, 150, 0)
 DecreaseButton.TextColor3 = Color3.new(1, 1, 1)
 DecreaseButton.MouseButton1Click:Connect(function()
-    if speed > 1 then
-        speed = speed - 1
-        SpeedLabel.Text = "Speed: " .. speed
-    end
-end)
-DecreaseButton.TouchTap:Connect(function()
     if speed > 1 then
         speed = speed - 1
         SpeedLabel.Text = "Speed: " .. speed
@@ -98,9 +100,7 @@ FlyButton.Text = "Fly"
 FlyButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
 FlyButton.TextColor3 = Color3.new(1, 1, 1)
 FlyButton.MouseButton1Click:Connect(function()
-    fly()
-end)
-FlyButton.TouchTap:Connect(function()
+    switchRigType(Enum.HumanoidRigType.R6)
     fly()
 end)
 
@@ -112,25 +112,39 @@ UnflyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 UnflyButton.TextColor3 = Color3.new(1, 1, 1)
 UnflyButton.MouseButton1Click:Connect(function()
     unfly()
-end)
-UnflyButton.TouchTap:Connect(function()
-    unfly()
+    switchRigType(Enum.HumanoidRigType.R15)
 end)
 
--- Fly Function
+-- Fly Function with Smooth Rotation and Camera-Based Altitude Control
 function fly()
     if flying then return end
     flying = true
     
     bodyVelocity = Instance.new("BodyVelocity")
     bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-    bodyVelocity.Velocity = Vector3.new(0, speed, 0)
+    bodyVelocity.Velocity = Vector3.new(0, 0, 0)
     bodyVelocity.Parent = rootPart
     
     bodyGyro = Instance.new("BodyGyro")
     bodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
     bodyGyro.CFrame = rootPart.CFrame
     bodyGyro.Parent = rootPart
+    
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if flying then
+            local moveDirection = humanoid.MoveDirection
+            local camera = workspace.CurrentCamera
+            local lookDirection = camera.CFrame.LookVector
+            
+            if moveDirection.Magnitude > 0 then
+                local flightDirection = (moveDirection * Vector3.new(1, 0, 1) + Vector3.new(0, lookDirection.Y, 0)).Unit
+                bodyVelocity.Velocity = flightDirection * speed
+                bodyGyro.CFrame = CFrame.new(rootPart.Position, rootPart.Position + flightDirection)
+            else
+                bodyVelocity.Velocity = Vector3.new(0, 0, 0) -- Stop movement when idle
+            end
+        end
+    end)
 end
 
 -- Unfly Function
