@@ -35,9 +35,16 @@ end
 
 -- UI Setup (Now Smaller and Horizontal)
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = plr:FindFirstChildOfClass("PlayerGui")
-
 local Frame = Instance.new("Frame")
+local CloseButton = Instance.new("TextButton")
+local IncreaseButton = Instance.new("TextButton")
+local DecreaseButton = Instance.new("TextButton")
+local SpeedLabel = Instance.new("TextLabel")
+local FlyButton = Instance.new("TextButton")
+local UnflyButton = Instance.new("TextButton")
+
+ScreenGui.Parent = game.CoreGui
+
 Frame.Parent = ScreenGui
 Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 Frame.Position = UDim2.new(0.5, -200, 0.9, -50)
@@ -57,7 +64,41 @@ local function createButton(parent, text, position, color, callback)
     return button
 end
 
-local function fly()
+FlyButton = createButton(Frame, "Fly", UDim2.new(0, 10, 0, 5), Color3.fromRGB(0, 200, 0), function()
+    switchRigType(Enum.HumanoidRigType.R6)
+    fly()
+end)
+
+UnflyButton = createButton(Frame, "Unfly", UDim2.new(0, 80, 0, 5), Color3.fromRGB(200, 0, 0), function()
+    unfly()
+    switchRigType(Enum.HumanoidRigType.R15)
+end)
+
+IncreaseButton = createButton(Frame, "+", UDim2.new(0, 150, 0, 5), Color3.fromRGB(0, 150, 255), function()
+    speed = speed + 1
+    SpeedLabel.Text = "Speed: " .. speed
+end)
+
+DecreaseButton = createButton(Frame, "-", UDim2.new(0, 220, 0, 5), Color3.fromRGB(255, 150, 0), function()
+    if speed > 1 then
+        speed = speed - 1
+        SpeedLabel.Text = "Speed: " .. speed
+    end
+end)
+
+SpeedLabel.Parent = Frame
+SpeedLabel.Size = UDim2.new(0, 100, 0, 40)
+SpeedLabel.Position = UDim2.new(0, 290, 0, 5)
+SpeedLabel.Text = "Speed: 5"
+SpeedLabel.TextColor3 = Color3.new(1, 1, 1)
+SpeedLabel.BackgroundTransparency = 1
+
+CloseButton = createButton(Frame, "X", UDim2.new(0, 360, 0, 5), Color3.fromRGB(200, 0, 0), function()
+    ScreenGui:Destroy()
+end)
+
+-- Improved Fly Function with Anti-Patch Methods
+function fly()
     if flying then return end
     flying = true
     
@@ -90,7 +131,8 @@ local function fly()
     table.insert(connections, game:GetService("RunService").RenderStepped:Connect(flightLoop))
 end
 
-local function unfly()
+-- Improved Unfly Function
+function unfly()
     flying = false
     if bodyVelocity then bodyVelocity:Destroy() end
     if bodyGyro then bodyGyro:Destroy() end
@@ -101,39 +143,3 @@ local function unfly()
     end
     connections = {}
 end
-
-createButton(Frame, "Fly", UDim2.new(0, 10, 0, 5), Color3.fromRGB(0, 200, 0), function()
-    switchRigType(Enum.HumanoidRigType.R6)
-    fly()
-end)
-
-createButton(Frame, "Unfly", UDim2.new(0, 80, 0, 5), Color3.fromRGB(200, 0, 0), function()
-    unfly()
-    switchRigType(Enum.HumanoidRigType.R15)
-end)
-
-createButton(Frame, "+", UDim2.new(0, 150, 0, 5), Color3.fromRGB(0, 150, 255), function()
-    speed = speed + 1
-end)
-
-createButton(Frame, "-", UDim2.new(0, 220, 0, 5), Color3.fromRGB(255, 150, 0), function()
-    if speed > 1 then
-        speed = speed - 1
-    end
-end)
-
-local SpeedLabel = Instance.new("TextLabel")
-SpeedLabel.Parent = Frame
-SpeedLabel.Size = UDim2.new(0, 100, 0, 40)
-SpeedLabel.Position = UDim2.new(0, 290, 0, 5)
-SpeedLabel.Text = "Speed: " .. speed
-SpeedLabel.TextColor3 = Color3.new(1, 1, 1)
-SpeedLabel.BackgroundTransparency = 1
-
-game:GetService("RunService").RenderStepped:Connect(function()
-    SpeedLabel.Text = "Speed: " .. speed
-end)
-
-createButton(Frame, "X", UDim2.new(0, 360, 0, 5), Color3.fromRGB(200, 0, 0), function()
-    ScreenGui:Destroy()
-end)
