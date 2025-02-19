@@ -19,7 +19,7 @@ local function switchRigType(rigType)
     end
 end
 
--- UI Setup (Optimized for Mobile Executors)
+-- UI Setup (Now Smaller and Horizontal)
 local ScreenGui = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local CloseButton = Instance.new("TextButton")
@@ -47,7 +47,7 @@ local function createButton(parent, text, position, color, callback)
     button.BackgroundColor3 = color
     button.TextColor3 = Color3.new(1, 1, 1)
     button.MouseButton1Click:Connect(callback)
-    button.TouchTap:Connect(callback) -- Ensures mobile compatibility
+    button.TouchTap:Connect(callback) -- Ensures mobile support
     return button
 end
 
@@ -84,7 +84,7 @@ CloseButton = createButton(Frame, "X", UDim2.new(0, 360, 0, 5), Color3.fromRGB(2
     ScreenGui:Destroy()
 end)
 
--- Fly Function with Mobile Executor Compatibility
+-- Fly Function
 function fly()
     if flying then return end
     flying = true
