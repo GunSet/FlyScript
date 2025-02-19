@@ -19,21 +19,7 @@ local function switchRigType(rigType)
     end
 end
 
--- Anti-Kick & Anti-Detection Bypass
-local success, mt = pcall(getrawmetatable, game)
-if success and mt then
-    setreadonly(mt, false)
-    local oldNamecall = mt.__namecall
-    mt.__namecall = newcclosure(function(self, ...)
-        local method = getnamecallmethod()
-        if method == "Kick" or method == "Destroy" then
-            return nil
-        end
-        return oldNamecall(self, ...)
-    end)
-end
-
--- UI Setup (Now Smaller and Horizontal)
+-- UI Setup (Optimized for Mobile Executors)
 local ScreenGui = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local CloseButton = Instance.new("TextButton")
@@ -61,6 +47,7 @@ local function createButton(parent, text, position, color, callback)
     button.BackgroundColor3 = color
     button.TextColor3 = Color3.new(1, 1, 1)
     button.MouseButton1Click:Connect(callback)
+    button.TouchTap:Connect(callback) -- Ensures mobile compatibility
     return button
 end
 
@@ -97,7 +84,7 @@ CloseButton = createButton(Frame, "X", UDim2.new(0, 360, 0, 5), Color3.fromRGB(2
     ScreenGui:Destroy()
 end)
 
--- Improved Fly Function with Anti-Patch Methods
+-- Fly Function with Mobile Executor Compatibility
 function fly()
     if flying then return end
     flying = true
@@ -131,7 +118,7 @@ function fly()
     table.insert(connections, game:GetService("RunService").RenderStepped:Connect(flightLoop))
 end
 
--- Improved Unfly Function
+-- Unfly Function
 function unfly()
     flying = false
     if bodyVelocity then bodyVelocity:Destroy() end
