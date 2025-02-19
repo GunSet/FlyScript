@@ -13,7 +13,7 @@ local function switchRigType(rigType)
         local humanoidDescription = humanoid:GetAppliedDescription()
         humanoidDescription.RigType = rigType
         plr:LoadCharacterWithHumanoidDescription(humanoidDescription)
-        char = plr.Character or plr.CharacterAdded:Wait()
+        char = plr.Character
         humanoid = char:WaitForChild("Humanoid")
         rootPart = char:WaitForChild("HumanoidRootPart")
     end
@@ -35,8 +35,9 @@ end
 
 -- UI Setup (Now Smaller and Horizontal)
 local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = plr:FindFirstChildOfClass("PlayerGui") -- Fix UI placement issue
+
 local Frame = Instance.new("Frame")
-ScreenGui.Parent = game.CoreGui
 Frame.Parent = ScreenGui
 Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 Frame.Position = UDim2.new(0.5, -200, 0.9, -50)
@@ -90,7 +91,7 @@ local CloseButton = createButton(Frame, "X", UDim2.new(0, 360, 0, 5), Color3.fro
     ScreenGui:Destroy()
 end)
 
--- Improved Fly Function with Anti-Patch Methods
+-- Fly Function with Improved Connection Handling
 function fly()
     if flying then return end
     flying = true
@@ -124,7 +125,7 @@ function fly()
     table.insert(connections, game:GetService("RunService").RenderStepped:Connect(flightLoop))
 end
 
--- Improved Unfly Function
+-- Unfly Function with Proper Cleanup
 function unfly()
     flying = false
     if bodyVelocity then bodyVelocity:Destroy() end
